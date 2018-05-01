@@ -13,23 +13,43 @@ class Game:
         self.score = 0 
         self.g=100 #ground, need this? 
         self.spacing=self.w/9
-    
-    def createBoard(self):
+        #align the midpoint of player + objects with the x-coordinates of t1,t2 or t3 
+        self.t1 = self.spacing*(2.5)  #1st track: self.spacing*2, self.spacing*3 (x-range)
+        self.t2 = self.spacing*(4.5)  #2nd track: self.spacing*4, self.spacing*5 
+        self.t3 = self.spacing*(6.5)  #3rd track: self.spacing*6, self.spacing*7 
+        
+        self.rail = [] 
+        for a in range(0,3):
+            tmp = [] 
+            self.rail.append(tmp)
+        print self.rail
+        print len(self.rail) 
+        
+    def createBoard(self): 
         self.bgImgs = [] 
         self.cnt = 0 
         self.time = 0 
         self.x = 0 #displacement of the stuff 
-        self.y = 0 
-        self.vy = 5 #the speed for background images to move 
+        self.y = 0 #this will change 
+        self.z = 0 
+        self.vy = 5 #the speed for background images to move
         
-        #align the midpoint of the "creatures" with the x-coordinates of t1,t2 or t3 
-        #1st track: self.spacing*2, self.spacing*3 (x-range) 
-        #2nd track: self.spacing*4, self.spacing*5 
-        #3rd track: self.spacing*6, self.spacing*7 
-        self.t1 = self.spacing*(2.5)  
-        self.t2 = self.spacing*(4.5) 
-        self.t3 = self.spacing*(6.5)
+        # self.bgMusic=SoundFile(this, path+"/resources/backgroundMusic.mp3")
+        # self.bgMusic.amp(0.5)
+        # #self.bgMusic.play()
+                
+        #Add in background images and soundtrack 
+        for i in range(4):
+            self.bgImgs.append(loadImage(path+'/resources/background_image_'+str(i+1)+'.png'))
         
+        #add in player 
+        self.player = Player(self.t2,750,40,path+"/resources/player.png",0)
+        
+        #increment time 
+        #start running score 
+        
+        
+    def generate(self):
         #lists for tracks: correpsonds to t1,t2.t3
         #Enemies to append: MoveTrain, StillTrain, Object, Star
         self.track1 = [(MoveTrain(self.t1,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
@@ -43,30 +63,32 @@ class Game:
         self.track3 = [(MoveTrain(self.t3,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
                        (StillTrain(self.t3,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
                        (Object(self.t3,self.y,70,70,path+"/resources/object.png")),\
-                       (Star(self.t3,self.y,40,40,path+"/resources/star.png"))] 
-        
-        #the actual track to be displayed
-        self.rail = [] 
-        for a in range(0,3):
-            tmp = [] 
-            for b in range(1):
-                tmp.append('')
-            self.rail.append(tmp)
-        
+                       (Star(self.t3,self.y,40,40,path+"/resources/star.png"))]         
+
         #all enemies randomizing here 
+        q = random.randint(0,3)
         r = random.randint(0,3) 
+        s = random.randint(0,3) 
         cnt = 2 
         for a in (self.rail):
-            cnt = (cnt+1)%3    #for looping through 0,1,2?  
+            cnt = (cnt+1)%3    #for looping through 0,1,2
             print cnt 
-            for b in a:
-                if len(a) < 2 and cnt==0: 
-                    a.append(self.track1[r]) 
-                elif len(a) < 2 and cnt==1:
-                    a.append(self.track2[r])
-                elif len(a) < 2 and cnt==2:
-                    a.append(self.track3[r])
-                    
+            if cnt==0:  #will not append unless less than 3? 
+                a.append(self.track1[q]) 
+            elif cnt==1:
+                a.append(self.track2[r])
+            elif cnt==2:
+                a.append(self.track3[s])
+        
+        #removing objects when its past the screen             
+        for a in (self.rail):
+            for b in a: 
+                if b.y-b.h+100 > self.h:
+                    a.remove(b)
+
+        
+        #making sure there are no more than 2 things appended within the same range of y
+        
         
         #Stuff to implement: 
         #1. 3 objects shouldn't be the same at once 
@@ -74,43 +96,46 @@ class Game:
         #3. minimal y-distance for stuff in the same track (so they don't overlap and velocity is taken care of) 
         #4. display: once appended, come in from top and instantly removed when the object moves out of the window (the y of the last thing appended) 
         #5. global velocity to increment the total velocity of everything together after certain time that the game is played? 
-        #use time as benchmark to when to append? 
-                
-        
-        #Add in background images and soundtrack 
-        for i in range(4):
-            self.bgImgs.append(loadImage(path+'/resources/background_image_'+str(i+1)+'.png'))
+        #use time as benchmark to when to append?
             
-        #add in player 
-        self.player = Player(self.t2,750,40,path+"/resources/player.png",0)
-
-        # self.bgMusic=SoundFile(this, path+"/resources/backgroundMusic.mp3")
-        # self.bgMusic.amp(0.5)
-        # #self.bgMusic.play()
-        
-        
-    def display(self):
+                            
+    def update(self):
         #display time
-        self.cnt = (self.cnt+1)%60 
-        if self.cnt == 0: #only increment time 
+        self.cnt = self.cnt+1
+        if self.cnt % 12 == 0: #only increment time 
             self.time += 1 
         
-        #display images 
+        self.player.update()
+        for a in self.rail:
+            for b in a:
+                b.update()        
+        
+        if self.cnt % 50 == 0:
+            self.generate()
+
+        
+    def display(self):
+        #display background images 
+        self.z+=5
+        if self.z-(3*self.h)==0:
+            self.z=0
         cnt=0
-        for img in self.bgImgs[:]:
-            if cnt == 0:
-                image(img,0,0,self.w,self.h)
-            elif cnt == 1:
-                image(img,2*self.spacing,0,self.spacing,self.h)
-            elif cnt == 2:
-                image(img,4*self.spacing,0,self.spacing,self.h)
-            elif cnt == 3:
-                image(img,6*self.spacing,0,self.spacing,self.h)
-            cnt += 1 
-                
+        image(self.bgImgs[0],self.x,self.z-(cnt*self.h),self.w,self.h)
+        cnt+=1
+        image(self.bgImgs[1],self.x,self.z-(cnt*self.h),self.w,self.h)
+        cnt+=1
+        image(self.bgImgs[2],self.x,self.z-(cnt*self.h),self.w,self.h)
+        cnt+=1
+        image(self.bgImgs[3],self.x,self.z-(cnt*self.h),self.w,self.h)
+        
+        #display player         
         self.player.display()
         
-
+        #displaying the rest 
+        for a in self.rail:
+            for b in a: 
+                b.display() 
+                
        #displays of scores etc 
         fill(255)
         text("Score:"+str(self.score),10,25) 
@@ -232,13 +257,13 @@ class Objects:
         noFill()
         ellipse(self.x-game.x,self.y,self.w, self.h) #determine the position later 
         #display image
-        image(self.img,self.x-self.w-game.x,self.y-self.h,self.w,self.h,0,0,self.w,self.h) 
+        image(self.img,self.x-game.x-(self.w/2),self.y-(self.h/2),self.w,self.h,0,0,self.w,self.h) 
                
         
 class MoveTrain(Objects):
     def __init__(self,x,y,w,h,imgName):
         Objects.__init__(self,x,y,w,h,imgName)
-        self.vy = 10 #velocity for dropping 
+        self.vy = 5 #velocity for dropping 
 
     def update(self):
         self.y += self.vy 
@@ -298,6 +323,7 @@ def draw():
     elif game.state == 'play':
         if not game.paused:
             background(0)
+            game.update()
             game.display()
         else:
             fill(255,0,0)
