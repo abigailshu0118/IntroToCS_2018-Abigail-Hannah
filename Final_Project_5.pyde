@@ -43,7 +43,7 @@ class Game:
         #Add in background images and soundtrack 
         for img in range(4):
             self.bgImgs.append(loadImage(path+'/resources/background_image_'+str(img+1)+'.png'))
-            print("list",len(self.bgImgs))
+   
             
             
             
@@ -64,7 +64,11 @@ class Game:
         
         #display images
 
-        self.y+=3
+        self.y+=5
+        
+        if self.y-(3*self.h)==0:
+            self.y=0
+
         cnt=0
         image(self.bgImgs[0],self.x,self.y-(cnt*self.h),self.w,self.h)
         cnt+=1
@@ -73,21 +77,6 @@ class Game:
         image(self.bgImgs[2],self.x,self.y-(cnt*self.h),self.w,self.h)
         cnt+=1
         image(self.bgImgs[3],self.x,self.y-(cnt*self.h),self.w,self.h)
-        cnt+=1
-        if self.y-(3*self.h)==0:
-            y=0
-        
-        # image(self.bgImgs[2],0,2*cnt*self.h-self.y, self.w,self.y,  0,0,self.w,self.y)
-        # image(self.bgImgs[1],0,cnt*self.h-self.y-1, self.w,self.y,0,0,self.w,self.y)
-        # image(self.bgImgs[0],0,cnt-1, self.w,self.h-self.y,0,self.y,self.w,self.h)
-
-        
-        # self.y+=3
-        # cnt=1
-        # image(self.bgImgs[0],0,cnt-1, self.w,self.h-self.y,0,self.y,self.w,self.h)
-        # #image(self.bgImgs[0],0,cnt*self.h-self.y-1, self.w,self.y,self.w,self.y,0,0)
-        # image(self.bgImgs[1],0,cnt*self.h-self.y-1, self.w,self.y,self.w,self.y,0,0)
-        # image(self.bgImgs[2],0,2*cnt*self.h-self.y, self.w,self.y,self.w,self.y,0,0)
    
  
         self.player.display()
