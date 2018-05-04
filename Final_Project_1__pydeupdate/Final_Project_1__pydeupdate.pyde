@@ -13,6 +13,7 @@ class Game:
         self.score = 0 
         self.g=100 #ground, need this? 
         self.spacing=self.w/9
+        
         #align the midpoint of player + objects with the x-coordinates of t1,t2 or t3 
         self.t1 = self.spacing*(2.5)  #1st track: self.spacing*2, self.spacing*3 (x-range)
         self.t2 = self.spacing*(4.5)  #2nd track: self.spacing*4, self.spacing*5 
@@ -22,8 +23,6 @@ class Game:
         for a in range(0,3):
             tmp = [] 
             self.rail.append(tmp)
-        print self.rail
-        print len(self.rail) 
         
     def createBoard(self): 
         self.bgImgs = [] 
@@ -53,26 +52,32 @@ class Game:
         #lists for tracks: correpsonds to t1,t2.t3
         #Enemies to append: MoveTrain, StillTrain, Object, Star
         self.track1 = [(MoveTrain(self.t1,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
-                       (StillTrain(self.t1,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
+                       (StillTrain(self.t1,self.y,70,175,path+"/resources/fire.png")),\
                        (Object(self.t1,self.y,70,70,path+"/resources/object.png")),\
                        (Star(self.t1,self.y,40,40,path+"/resources/star.png"))] 
         self.track2 = [(MoveTrain(self.t2,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
-                       (StillTrain(self.t2,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
+                       (StillTrain(self.t2,self.y,70,175,path+"/resources/fire.png")),\
                        (Object(self.t2,self.y,70,70,path+"/resources/object.png")),\
                        (Star(self.t2,self.y,40,40,path+"/resources/star.png"))]  
         self.track3 = [(MoveTrain(self.t3,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
-                       (StillTrain(self.t3,self.y,70,175,path+"/resources/ExtraMoveTrain.png")),\
+                       (StillTrain(self.t3,self.y,70,175,path+"/resources/fire.png")),\
                        (Object(self.t3,self.y,70,70,path+"/resources/object.png")),\
                        (Star(self.t3,self.y,40,40,path+"/resources/star.png"))]         
 
-        #all enemies randomizing here 
+
+        #all enemies randomizing here
         q = random.randint(0,3)
         r = random.randint(0,3) 
         s = random.randint(0,3) 
+        while q == r == s:
+            q = random.randint(0,3)
+            r = random.randint(0,3) 
+            s = random.randint(0,3) 
+        
         cnt = 2 
         for a in (self.rail):
             cnt = (cnt+1)%3    #for looping through 0,1,2
-            print cnt 
+            #print cnt 
             if cnt==0:  #will not append unless less than 3? 
                 a.append(self.track1[q]) 
             elif cnt==1:
@@ -83,35 +88,43 @@ class Game:
         #removing objects when its past the screen             
         for a in (self.rail):
             for b in a: 
-                if b.y-b.h+100 > self.h:
+                if b.y-(b.h/2) > self.h:
                     a.remove(b)
-
         
-        #making sure there are no more than 2 things appended within the same range of y
-        
-        
-        #Stuff to implement: 
-        #1. 3 objects shouldn't be the same at once 
-        #2. randomize number of appends at once (for all 3) 
-        #3. minimal y-distance for stuff in the same track (so they don't overlap and velocity is taken care of) 
-        #4. display: once appended, come in from top and instantly removed when the object moves out of the window (the y of the last thing appended) 
-        #5. global velocity to increment the total velocity of everything together after certain time that the game is played? 
-        #use time as benchmark to when to append?
+        #make sure that the 3 things appended are not all the object the player can't touch 
             
                             
     def update(self):
         #display time
         self.cnt = self.cnt+1
-        if self.cnt % 12 == 0: #only increment time 
+        if self.cnt % 12 == 0:
             self.time += 1 
         
         self.player.update()
         for a in self.rail:
             for b in a:
                 b.update()        
-        
-        if self.cnt % 50 == 0:
-            self.generate()
+    
+        if 0 <= self.time <= 500:
+            if self.cnt % 70 == 0:
+                self.generate()
+                #print ("70")
+        elif 500 < self.time <= 1000:
+            if self.cnt % 65 == 0:
+                self.generate()
+                #print ("65")
+        elif 1000 < self.time <= 2000:
+            if self.cnt % 60 == 0:
+                self.generate()
+                #print ("60")
+        elif 2000 < self.time <= 3000:
+            if self.cnt % 55 == 0:
+                self.generate()
+                #print ("55")
+        elif self.time > 3000:
+            if self.cnt % 53 == 0:
+                self.generate()
+                #print ("53")
 
         
     def display(self):
@@ -138,8 +151,8 @@ class Game:
                 
        #displays of scores etc 
         fill(255)
-        text("Score:"+str(self.score),10,25) 
-        text("Time:"+str(self.time),10,50) 
+        text("Score:"+str(self.time),10,25) 
+        #text("Time:"+str(self.time),10,50) 
 
 
 class Creature: 
@@ -179,17 +192,17 @@ class Player(Creature):
         self.keyLock = 0
         
     def update(self):
-        print self.keyLock
+        # print self.keyLock
         if self.keyLock > 0.0:
             self.keyLock -= 1.0
         else:
             self.keyLock=0.0
         #left and right (with tiles) 
-        #what's the velocity though? for the image to instantly move
+
         self.y += self.vy 
 
         if self.keyHandler[LEFT] and self.keyLock == 0:
-            self.keyLock = 2.0
+            self.keyLock = 14.0
             if self.x == self.t1:
                 self.x = self.t1 
             elif self.x == self.t2:
@@ -197,46 +210,54 @@ class Player(Creature):
             elif self.x == self.t3:
                 self.x = self.t2 
         elif self.keyHandler[RIGHT] and self.keyLock == 0:
-            self.keyLock = 2.0
+            self.keyLock = 14.0
             if self.x == self.t1:
                 self.x = self.t2 
             elif self.x == self.t2:
                 self.x = self.t3
             elif self.x == self.t3:
                 self.x = self.t3
-                
-        #collisions: define up and down here (to pass the collision)
-        # for s in game.stars:
-        #     if self.distance(s) < self.r+s.h:  
-        #         game.stars.remove(s)
-        #         del s      
-        #         #self.starSound.play()
-        #         game.score += 10
         
-        # for o in game.objects:
-        #     if self.distance(o) < self.r+o.h and self.keyHandler[DOWN]: #using height here? 
-        #         game.score += 20 
-        #     elif self.distance(o) < self.r+o.h:
-        #         game.__init__()
-        #         game.createGame()
-                
-        # for t in game.stilltrain:
-        #     if self.distance(t) < self.r+t.h: 
-        #         game.__init__()
-        #         game.createGame()
         
-        # for m in game.movetrain: 
-        #     if self.distance(m) < self.r+m.h and self.keyHandler[UP]:
-        #         game.score += 30 
-        #     elif self.distance(m) < self.r+m.h:
-        #         game.__init__()
-        #         game.createGame()
-        #still need to let it jump up until the train passes 
+        #collision detection and scores   
+        if self.x == game.t1:
+            count = 0 
+        elif self.x == game.t2:
+            count = 1 
+        elif self.x == game.t3: 
+            count = 2 
+            
+        for b in game.rail[count]:
+            if self.distance(b) < self.r+(b.h/2) and self.distance(b) >0:
+                if isinstance(b, MoveTrain):
+                # if b == game.track1[0] or game.track2[0] or game.track3[0]: #movetrain 
+                    if self.keyHandler[UP]:
+                        continue
+                        # game.score += 30 
+                    else:
+                        game.__init__()
+                        game.createBoard()
+                if isinstance(b, StillTrain):   
+                # elif b == game.track1[1] or game.track2[1] or game.track3[1]: #still train(fire) 
+                    game.__init__()
+                    game.createBoard()
+                if isinstance(b, Object): 
+                # elif b == game.track1[2] or game.track2[2] or game.track3[2]: #object 
+                    if self.keyHandler[DOWN]:
+                        continue
+                        # game.score += 20 
+                    else: 
+                        game.__init__()
+                        game.createBoard()
+                if isinstance(b, Star): 
+                # elif b == game.track1[3] or game.track2[3] or game.track3[3]: #star 
+                    game.time += 100 
+                    game.rail[count].remove(b)
+            else: continue 
                 
-
+                
     def distance(self,other): #for circle
-        #return ((self.x-other.x)**2+(self.y-other.y)**2)**0.5                
-        return (self.y+other.y) 
+        return (self.y-other.y) 
                                    
                                                                  
 class Objects:
@@ -258,12 +279,15 @@ class Objects:
         ellipse(self.x-game.x,self.y,self.w, self.h) #determine the position later 
         #display image
         image(self.img,self.x-game.x-(self.w/2),self.y-(self.h/2),self.w,self.h,0,0,self.w,self.h) 
+        
+    def where(self):
+        return self.y 
                
         
 class MoveTrain(Objects):
     def __init__(self,x,y,w,h,imgName):
         Objects.__init__(self,x,y,w,h,imgName)
-        self.vy = 5 #velocity for dropping 
+        self.vy = 3.5 #velocity for dropping 
 
     def update(self):
         self.y += self.vy 
@@ -271,7 +295,7 @@ class MoveTrain(Objects):
 class StillTrain(Objects): 
     def __init__(self,x,y,w,h,imgName):
         Objects.__init__(self,x,y,w,h,imgName)
-        self.vy = 5 #velocity same as the background 
+        self.vy = 3.5 #velocity same as the background 
     
     def update(self):
         self.y += self.vy 
@@ -279,7 +303,7 @@ class StillTrain(Objects):
 class Object(Objects): 
     def __init__(self,x,y,w,h,imgName):
         Objects.__init__(self,x,y,w,h,imgName)
-        self.vy = 5 #velocity same as the background 
+        self.vy = 3.5 #velocity same as the background 
     
     def update(self):
         self.y += self.vy 
@@ -287,13 +311,11 @@ class Object(Objects):
 class Star(Objects): 
     def __init__(self,x,y,w,h,imgName):
         Objects.__init__(self,x,y,w,h,imgName)
-        self.vy = 5 #velocity same as background 
+        self.vy = 3.5 #velocity same as background 
     
     def update(self):
         self.y += self.vy 
         
-
-
 
 game=Game()
 
@@ -332,7 +354,7 @@ def draw():
         
 def keyPressed():
     if game.state=="play":
-        print (keyCode)
+        #print (keyCode)
         game.player.keyHandler[keyCode]=True
     
     if game.state=="input name":
@@ -344,7 +366,7 @@ def keyPressed():
             f.close()
             game.__init__()
             game.createGame()
-        print(keyCode)
+        #print(keyCode)
         if type(key)!=str:
             game.name+=key
     
