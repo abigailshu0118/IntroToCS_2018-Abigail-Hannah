@@ -157,6 +157,7 @@ class Game:
         text("Score:"+str(self.time),10,25) 
         #text("Time:"+str(self.time),10,50) 
 
+menubackground=loadImage(path+'/resources/menubackground.jpeg')
 
 class Creature: 
     def __init__(self,x,y,r,imgName,F): 
@@ -244,7 +245,11 @@ class Player(Creature):
                 if isinstance(b, StillTrain):   
                 # elif b == game.track1[1] or game.track2[1] or game.track3[1]: #still train(fire) 
                     #game.__init__()
-                    self.saveandend()
+                    if self.keyHandler[UP]:
+                        continue
+                        # game.score += 30 
+                    else:
+                        self.saveandend()
                     game.createBoard()
                 if isinstance(b, Object): 
                 # elif b == game.track1[2] or game.track2[2] or game.track3[2]: #object 
@@ -349,36 +354,46 @@ game=Game()
 def setup():
     size(game.w,game.h)
     game.createBoard()
+
     
 def draw():
         
     if game.state=='menu':
-        background(0)
-        if game.state=="menu" and game.w//2<=mouseX<=game.w//2+160 and game.h//2-30 <= mouseY <= game.h//2+40:
+        image(menubackground,0,0)
+        if game.w//3<=mouseX<=game.w//3+160 and game.h//2-30 <= mouseY <= game.h//2:
             fill(0,255,0)
         elif game.state=="play":
             if not game.paused:
                 background(0)
                 game.display()
         else:
-            fill(255)
-    
+            fill(255,255,0)
         textSize(32)
         text("Play Game",game.w//3,game.h//2)
-        noFill()
-        rect(game.w//3,game.h//2-30,160,40)
-        fill(0,0,255)
+        #noFill()
+        #rect(game.w//3,game.h//2-30,160,40)
+        if game.w//3<=mouseX<=game.w//3+270 and game.h//2+15<= mouseY<=game.h//2+55:
+            fill(0,255,0)
+        else:
+            fill(255,255,150)
         text("Get Instructions",game.w//3,game.h//2+40)
-        noFill()
-        rect(game.w//3,game.h//2+15,270,40)
-        fill(0,0,255)
+        #noFill()
+        #rect(game.w//3,game.h//2+15,270,40)
+        if game.w//3<=mouseX<=game.w//3+160 and game.h//2+60<= mouseY<=game.h//2+120:
+            fill(0,255,0)
+        else:
+            fill(255,255,150)
         text("New Player",game.w//3,game.h//2+90)
-        noFill()
-        rect(game.w//3,game.h//2+60,160,40)
-        fill(0,0,255)
+        #noFill()
+        #rect(game.w//3,game.h//2+60,160,40)
+        if game.w//3<=mouseX<=game.w//3+180 and game.h//2+110<= mouseY<=game.h//2+150:
+            fill(0,255,0)
+        else:
+            fill(255,255,150)
         text("High Scores",game.w//3,game.h//2+140)
-        noFill()
-        rect(game.w//3,game.h//2+110,180,40)
+        #noFill()
+        #rect(game.w//3,game.h//2+110,180,40)
+
     elif game.state == 'play':
         if not game.paused:
             background(0)
@@ -390,19 +405,29 @@ def draw():
             text("Game Paused!",game.w//2-game.w//8,game.h//2)
     elif game.state=="get instructions":
         background(0)
-        fill(0,85,170)
+        fill(255,255,150)
         textSize(32)            
         text("Use LEFT and RIGHT arrows to switch tracks",game.w//8,game.h//5)
         text("Use UP to jump over a train", game.w//8,3*game.h//10)
         text("Use DOWN to duck under an object",game.w//8,4*game.h//10)
         text("Collect Stars for Points!",game.w//8,5*game.h//10)
         text("Press P to pause",game.w//8,6*game.h//10)
+        if 5*game.w//8<=mouseX<=5*game.w//8+255 and 7*game.h//8-40<=mouseY<=7*game.h//8:
+            fill(0,255,0)
+        else:
+            fill(0,0,255)
+        text("Back to Menu",5*game.w//8,7*game.h//8)
     elif game.state=="input name":
         fill(0,85,170)
         background(0)
         textSize(32)
-        text("Please enter your name:",game.w//4,game.h//2-200)
+        text("Please enter your name:",game.w//6,game.h//2-200)
         text(game.name,game.w//8,game.h//2)
+        if 5*game.w//8<=mouseX<=5*game.w//8+255 and 7*game.h//8-40<=mouseY<=7*game.h//8:
+            fill(0,255,0)
+        else:
+            fill(255,255,150)
+        text("Back to Menu",5*game.w//8,7*game.h//8)
         # f=open("highscores.csv","a")
         # f.write(game.name+","+str(game.score)+"\n")
         # f.close()
@@ -411,10 +436,24 @@ def draw():
     elif game.state=="high scores":
         fill(0,85,170)
         background(0)
+        if game.state=="high scores" and 5*game.w//8<=mouseX<=5*game.w//8+255 and 7*game.h//8-40<=mouseY<=7*game.h//8:
+            fill(0,255,0)
+        else:
+            fill(255,255,150)
+        text("Back to Menu",5*game.w//8,7*game.h//8)
+        #rect(5*game.w//8,7*game.h//8-40,225,40)
+        fill(0,0,255)
         textSize(32)
         f=open("highscores.csv","r")
+        cnt=0
+        allscores=[]
         for line in f:
-            text(line,game.w//4,game.h//2-200)
+            cnt+=40
+            if cnt<=400:
+                fill(255,244,150)
+                text(cnt/40,game.w//4-50,game.h//2-200+cnt)
+                fill(0,0,244)
+                text(line,game.w//4,game.h//2-200+cnt)
 def keyPressed():
     if game.state=="play":
         #print (keyCode)
@@ -441,11 +480,15 @@ def mouseClicked():
     print(mouseY)
     if game.state=="menu" and game.w//3<=mouseX<=game.w//3+160 and game.h//2-30 <= mouseY <= game.h//2+10:
         game.state='play'
-    elif game.state=="menu" and game.w//3<=mouseX<+game.w//3+270 and game.h//2+15<= mouseY<=game.h//2+55:
+    elif game.state=="menu" and game.w//3<=mouseX<=game.w//3+270 and game.h//2+15<= mouseY<=game.h//2+55:
         game.state="get instructions"
-    elif game.state=="menu" and game.w//3<=mouseX<+game.w//3+160 and game.h//2+60<= mouseY<=game.h//2+120:
+    elif game.state=="menu" and game.w//3<=mouseX<=game.w//3+160 and game.h//2+60<= mouseY<=game.h//2+120:
         print("new player")
         game.state="input name"
-    elif game.state=="menu" and game.w//3<=mouseX<+game.w//3+180 and game.h//2+110<= mouseY<=game.h//2+150:
+    elif game.state=="menu" and game.w//3<=mouseX<=game.w//3+180 and game.h//2+110<= mouseY<=game.h//2+150:
         print("high scores")
         game.state="high scores"
+    elif game.state=="high scores" and 5*game.w//8<=mouseX<=5*game.w//8+255 and 7*game.h//8-40<=mouseY<=7*game.h//8:
+        game.state="menu" #5*game.w//8,7*game.h//8-40,225,40
+    elif game.state=="get instructions" and 5*game.w//8<=mouseX<=5*game.w//8+255 and 7*game.h//8-40<=mouseY<=7*game.h//8:
+        game.state="menu"
